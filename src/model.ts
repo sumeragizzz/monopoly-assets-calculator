@@ -134,6 +134,11 @@ class PropertyStatus {
         this.houseCount = 0
         this.mortgaged = false
     }
+
+    // 評価額を算出する
+    calculatePresentValue(): number {
+        return this.property.price / (this.mortgaged ? 2 : 1) + this.property.cost * this.houseCount
+    }
 }
 
 // プレイヤー
@@ -188,6 +193,13 @@ export class Player {
         this.propertyStatuses.get(property.name)!.mortgaged = false
     }
 
+    isMortgaged(property: Property): boolean {
+        if (!this.propertyStatuses.has(property.name)) {
+            throw new Error()
+        }
+        return this.propertyStatuses.get(property.name)!.mortgaged
+    }
+
     // 家を建てる
     buildHouses(property: Property, count?: number): void {
         this.addHouseCount(property, count ?? 1)
@@ -230,6 +242,14 @@ export class Player {
         // TODO 未実装
     }
 
+    // 家の数
+    getHouseCount(property: Property): number {
+        if (!this.propertyStatuses.has(property.name)) {
+            throw new Error()
+        }
+        return this.propertyStatuses.get(property.name)!.houseCount
+    }
+
     // 評価額を算出する
     calculatePresentValue(property: Property): number {
         if (!this.propertyStatuses.has(property.name)) {
@@ -237,6 +257,10 @@ export class Player {
         }
         const status: PropertyStatus = this.propertyStatuses.get(property.name)!
 
-        return status.property.price / (status.mortgaged ? 2 : 1) + status.property.cost * status.houseCount
+        return status.calculatePresentValue()
+    }
+
+    calculateAllPresentValue(): number {
+        return Array.from(this.propertyStatuses.values()).reduce((previousValue, currentValue) => previousValue + currentValue.calculatePresentValue(), 0)
     }
 }
