@@ -5,7 +5,7 @@
 資産の合計で勝敗を決めるなどの用途でご活用ください。
 
 ## 実行環境
-以下、URLから利用できます。
+以下のURLから利用できます。
 
 https://sumeragizzz.github.io/monopoly-assets-calculator/
 
