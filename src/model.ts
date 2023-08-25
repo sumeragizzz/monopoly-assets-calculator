@@ -227,21 +227,6 @@ export class Player {
         status.houseCount = afterHouseCount
     }
 
-    // 家を全て売る
-    sellAllHouses(property: Property): void {
-        // TODO 未実装
-    }
-
-    // ホテルを建てる
-    buildHotel(property: Property): void {
-        // TODO 未実装
-    }
-
-    // ホテルを売る
-    sellHotel(property: Property): void {
-        // TODO 未実装
-    }
-
     // 家の数
     getHouseCount(property: Property): number {
         if (!this.propertyStatuses.has(property.name)) {
