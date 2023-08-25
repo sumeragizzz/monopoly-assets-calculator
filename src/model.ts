@@ -248,4 +248,8 @@ export class Player {
     calculateAllPresentValue(): number {
         return Array.from(this.propertyStatuses.values()).reduce((previousValue, currentValue) => previousValue + currentValue.calculatePresentValue(), 0)
     }
+
+    getTotalAssets(): number {
+        return this.money + this.calculateAllPresentValue()
+    }
 }

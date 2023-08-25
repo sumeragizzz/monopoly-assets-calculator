@@ -99,10 +99,26 @@ addPlayer()
     <tfoot>
       <tr>
         <td></td>
-        <td></td>
+        <td>資産小計</td>
         <td></td>
         <td></td>
         <td v-for="player in players">{{ player.calculateAllPresentValue() }}</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>所持金</td>
+        <td></td>
+        <td></td>
+        <td v-for="player in players">
+          <input v-model.number="player.money" />
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>合計</td>
+        <td></td>
+        <td></td>
+        <td v-for="player in players">{{ player.getTotalAssets() }}</td>
       </tr>
     </tfoot>
   </table>
