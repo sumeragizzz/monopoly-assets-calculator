@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import MonopolyAssetsCalculator from './components/MonopolyAssetsCalculator.vue'
+import MonopolyAssetsCalculator from '../components/MonopolyAssetsCalculator.vue'
 </script>
 
 <template>
