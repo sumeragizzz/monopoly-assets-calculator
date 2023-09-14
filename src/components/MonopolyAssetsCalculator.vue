@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Game, Player, Property } from '../model.ts'
+import { Game, Player, Property } from '../js/model.ts'
 
 defineProps<{ msg: string }>()
 
@@ -10,10 +10,10 @@ const addPlayer = () => {
   game.value.addPlayer()
 }
 
-const removePlayer = (id: string) => {
-  // TODO 確認ダイアログを表示する
-
-  game.value.removePlayer(id)
+const removePlayer = (player: Player, playerIndex: number) => {
+  if (confirm(`${playerIndex + 1}: ${player.name}を削除してもよろしいですか？`)) {
+    game.value.removePlayer(player.id)
+  }
 }
 
 const buyProperty = (property: Property, houseCount: number) => {
@@ -30,87 +30,107 @@ const mortgageProperty = (property: Property) => {
   const player: Player = game.value.getOwnedPlayer(property) ?? game.value.getAllPlayers()[0]
   player.mortgageProperty(property)
 }
+
+const isActivatedSellButton = (property: Property) => {
+  return !game.value.getPropertyStatus(property).isOwned()
+}
+
+const isActivatedBuyButton = (property: Property, houseCount: number) => {
+  const owned: boolean = game.value.getPropertyStatus(property).isOwned()
+  const currentHouseCount: number = game.value.getPropertyStatus(property).houseCount
+  const mortgaged: boolean = game.value.getPropertyStatus(property).mortgaged
+  return owned && houseCount === currentHouseCount && !mortgaged
+}
+
+const isActivatedMortgageButton = (property: Property) => {
+  const owned: boolean = game.value.getPropertyStatus(property).isOwned()
+  const mortgaged = game.value.getPropertyStatus(property).mortgaged
+  return owned && mortgaged
+}
 </script>
 
 <template>
-  <h1>{{ msg }}</h1>
+  <div class="container">
+    <h1>{{ msg }}</h1>
+  </div>
 
-  <table>
+  <div class="container-fluid">
+  <table class="table table-sm table-striped">
     <thead>
       <tr>
-        <th></th>
+        <th colspan="5"></th>
+        <th>
+          プレイヤー
+          <button @click="addPlayer" :disabled="game.getAllPlayers().length >= 8" class="btn btn-sm btn-primary">追加</button>
+        </th>
+        <td v-for="(player, playerIndex) in game.getAllPlayers()">
+          <div class="input-group">
+            <span class="input-group-text">{{ playerIndex + 1 }}</span>
+            <input type="text" v-model="player.name" :id="`playerName${playerIndex}`" title="プレイヤー" class="form-control form-control-sm" />
+            <button @click="removePlayer(player, playerIndex)" :disabled="game.getAllPlayers().length <= 1" class="btn btn-sm btn-danger">削除</button>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th colspan="5"></th>
+        <th>合計</th>
+        <!-- <td v-for="player in game.getAllPlayers()">{{ player.money + player.calculateTotalValuation() }}</td> -->
+        <td v-for="(player, playerIndex) in game.getAllPlayers()">
+          <input type="number" :value="player.calculateTotalAssets()" readonly :id="`playerTotalAssets${playerIndex}`" title="合計" class="form-control form-control-sm text-end bg-secondary-subtle" />
+        </td>
+      </tr>
+      <tr>
+        <th colspan="5"></th>
+        <th>所持金</th>
+        <td v-for="(player, playerIndex) in game.getAllPlayers()">
+          <input type="number" v-model.number="player.money" :id="`playerMoney${playerIndex}`" title="所持金" class="form-control form-control-sm text-end" />
+        </td>
+      </tr>
+      <tr>
+        <th><!--カラーグループ--></th>
         <th>物件</th>
         <th>価格</th>
-        <th>建設備</th>
-        <th></th>
+        <th>建設費</th>
+        <th>操作</th>
+        <th>所有者</th>
         <th v-for="(player, playerIndex) in game.getAllPlayers()">
-          {{ playerIndex + 1 }}:&nbsp;
-          <input v-model="player.name" />
-          <button @click="removePlayer(player.id)" :disabled="game.getAllPlayers().length <= 1">削除</button>
+          <input type="number" :value="player.calculateTotalValuation()" readonly :id="`playerTotalValuation${playerIndex}`" title="物件価値合計" class="form-control form-control-sm text-end bg-secondary-subtle" />
         </th>
-        <th><button type="button" @click="addPlayer" :disabled="game.getAllPlayers().length >= 8">追加</button></th>
       </tr>
     </thead>
+
     <tbody>
-      <tr>
-        <td></td>
-        <td>合計</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td v-for="player in game.getAllPlayers()">{{ player.money + player.calculateTotalValuation() }}</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td>所持金</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td v-for="player in game.getAllPlayers()"><input type="number" v-model.number="player.money" /></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td>資産小計</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td v-for="player in game.getAllPlayers()">{{ player.calculateTotalValuation() }}</td>
-        <td></td>
-      </tr>
-      <tr v-for="property in game.getAllProperties()">
-        <td :style="{'background-color': property.group.color}">&nbsp;</td>
+      <tr v-for="(property, propertyIndex) in game.getAllProperties()">
+        <td :style="{'background-color': property.group.color}"></td>
         <td>{{ property.name }}</td>
         <td>{{ property.price }}</td>
         <td>{{ !property.buildable ? '-' : property.cost }}</td>
         <td>
-          <button @click="sellProperty(property)">✕</button>
-          <button @click="buyProperty(property, 0)">0</button>
-          <button @click="buyProperty(property, 1)" :disabled="!property.buildable">1</button>
-          <button @click="buyProperty(property, 2)" :disabled="!property.buildable">2</button>
-          <button @click="buyProperty(property, 3)" :disabled="!property.buildable">3</button>
-          <button @click="buyProperty(property, 4)" :disabled="!property.buildable">4</button>
-          <button @click="buyProperty(property, 5)" :disabled="!property.buildable">ホテル</button>
-          <button @click="mortgageProperty(property)">抵当</button>
-          <select v-model="game.getPropertyStatus(property).owner">
+          <button @click="sellProperty(property)" class="btn btn-sm" :class="{'btn-secondary': isActivatedSellButton(property), 'btn-outline-secondary': !isActivatedSellButton(property)}">✕</button>
+          <div class="btn-group">
+            <button @click="buyProperty(property, 0)" class="btn btn-sm" :class="{'btn-success': isActivatedBuyButton(property, 0), 'btn-outline-success': !isActivatedBuyButton(property, 0)}">0</button>
+            <button @click="buyProperty(property, 1)" :disabled="!property.buildable" class="btn btn-sm" :class="{'btn-success': isActivatedBuyButton(property, 1), 'btn-outline-success': !isActivatedBuyButton(property, 1)}">1</button>
+            <button @click="buyProperty(property, 2)" :disabled="!property.buildable" class="btn btn-sm" :class="{'btn-success': isActivatedBuyButton(property, 2), 'btn-outline-success': !isActivatedBuyButton(property, 2)}">2</button>
+            <button @click="buyProperty(property, 3)" :disabled="!property.buildable" class="btn btn-sm" :class="{'btn-success': isActivatedBuyButton(property, 3), 'btn-outline-success': !isActivatedBuyButton(property, 3)}">3</button>
+            <button @click="buyProperty(property, 4)" :disabled="!property.buildable" class="btn btn-sm" :class="{'btn-success': isActivatedBuyButton(property, 4), 'btn-outline-success': !isActivatedBuyButton(property, 4)}">4</button>
+          </div>
+          <button @click="buyProperty(property, 5)" :disabled="!property.buildable" class="btn btn-sm" :class="{'btn-danger': isActivatedBuyButton(property, 5), 'btn-outline-danger': !isActivatedBuyButton(property, 5)}">ホテル</button>
+          <button @click="mortgageProperty(property)" class="btn btn-sm" :class="{'btn-warning': isActivatedMortgageButton(property), 'btn-outline-warning': !isActivatedMortgageButton(property)}">抵当</button>
+        </td>
+        <td>
+          <select v-model="game.getPropertyStatus(property).owner" :id="`propertyOwner${propertyIndex}`" title="所有者" class="form-select-sm">
             <option disabled>所有者を選択してください</option>
             <option :value="undefined"></option>
             <option v-for="(player, playerIndex) in game.getAllPlayers()" :value="player">{{ `${playerIndex + 1}: ${player.name}` }}</option>
           </select>
         </td>
-        <!--
-        <template v-for="player in players">
-        </template>
-        -->
-        <!-- @vue-ignore -->
         <td v-for="player in game.getAllPlayers()">
           <template v-if="player.isOwnedProperty(property)">{{ game.getPropertyStatus(property).calculateValuation() }}</template>
         </td>
-        <td></td>
       </tr>
     </tbody>
   </table>
+  </div>
 </template>
 
 <style scoped>

@@ -245,6 +245,10 @@ export class Player {
             .reduce((previousValue, currentValue) => previousValue + currentValue, 0)
     }
 
+    calculateTotalAssets(): number {
+        return this.money + this.calculateTotalValuation()
+    }
+
     isOwnedProperty(property: Property): boolean {
         return this.board.getPropertyStatus(property).owner === this
     }
