@@ -1,5 +1,6 @@
 # モノポリー資産計算機
 
+![version](https://img.shields.io/badge/version-1.0.0-blue "version")
 [![Deploy GitHub Pages](https://github.com/sumeragizzz/monopoly-assets-calculator/actions/workflows/deploy.yaml/badge.svg)](https://sumeragizzz.github.io/monopoly-assets-calculator/)
 
 ## 概要
