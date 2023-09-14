@@ -103,8 +103,8 @@ const isActivatedMortgageButton = (property: Property) => {
       <tr v-for="(property, propertyIndex) in game.getAllProperties()">
         <td :style="{'background-color': property.group.color}"></td>
         <td>{{ property.name }}</td>
-        <td>{{ property.price }}</td>
-        <td>{{ !property.buildable ? '-' : property.cost }}</td>
+        <td class="text-end">{{ property.price }}</td>
+        <td class="text-end">{{ !property.buildable ? '-' : property.cost }}</td>
         <td>
           <button @click="sellProperty(property)" class="btn btn-sm" :class="{'btn-secondary': isActivatedSellButton(property), 'btn-outline-secondary': !isActivatedSellButton(property)}">✕</button>
           <div class="btn-group">
@@ -124,7 +124,7 @@ const isActivatedMortgageButton = (property: Property) => {
             <option v-for="(player, playerIndex) in game.getAllPlayers()" :value="player">{{ `${playerIndex + 1}: ${player.name}` }}</option>
           </select>
         </td>
-        <td v-for="player in game.getAllPlayers()">
+        <td v-for="player in game.getAllPlayers()" class="text-end">
           <template v-if="player.isOwnedProperty(property)">{{ game.getPropertyStatus(property).calculateValuation() }}</template>
         </td>
       </tr>
