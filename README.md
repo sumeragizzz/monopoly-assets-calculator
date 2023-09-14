@@ -1,5 +1,7 @@
 # モノポリー資産計算機
 
+[![Deploy GitHub Pages](https://github.com/sumeragizzz/monopoly-assets-calculator/actions/workflows/deploy.yaml/badge.svg)](https://sumeragizzz.github.io/monopoly-assets-calculator/)
+
 ## 概要
 モノポリーの資産を計算します。  
 資産の合計で勝敗を決めるなどの用途でご活用ください。

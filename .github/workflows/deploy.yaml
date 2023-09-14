@@ -1,5 +1,5 @@
 # 静的コンテンツを GitHub Pages にデプロイするためのシンプルなワークフロー
-name: Deploy static content to Pages
+name: Deploy GitHub Pages
 
 on:
   # デフォルトブランチを対象としたプッシュ時にで実行されます
